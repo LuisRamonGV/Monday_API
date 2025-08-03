@@ -49,6 +49,3 @@ This project contains two ways to update data on a Monday.com board:
 2. Standalone
     ```bash
     npm run start:script
-
-
-
