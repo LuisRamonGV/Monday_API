@@ -3,12 +3,37 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
+/**
+ * Base URL for Monday.com API
+ * @constant {string}
+ */
 const MONDAY_API_URL = 'https://api.monday.com/v2'
+
+/**
+ * Monday.com API Key from environment variables
+ * @constant {string}
+ */
 const MONDAY_API_KEY = process.env.MONDAY_API_KEY as string
+
+/**
+ * Board ID where updates will be applied
+ * @constant {number}
+ */
 const BOARD_ID = Number(process.env.BOARD_ID)
+
+/**
+ * Item ID that will be updated
+ * @constant {number}
+ */
 const ITEM_ID = Number(process.env.ITEM_ID)
 
-async function getColumnIdByTitle(title: string) {
+/**
+ * Retrieves the column ID from a Monday.com board by its title.
+ * @async
+ * @param {string} title - The title of the column to search for.
+ * @returns {Promise<string|null>} The column ID if found, otherwise `null`.
+ */
+async function getColumnIdByTitle(title: string): Promise<string | null> {
   const queryColumns = `
     query {
       boards(ids: ${BOARD_ID}) {
@@ -32,7 +57,13 @@ async function getColumnIdByTitle(title: string) {
   return found?.id || null
 }
 
-async function createColumn(title: string) {
+/**
+ * Creates a new column in the Monday.com board.
+ * @async
+ * @param {string} title - The title of the column to create.
+ * @returns {Promise<string>} The ID of the newly created column.
+ */
+async function createColumn(title: string): Promise<string> {
   const mutationCreateColumn = `
     mutation {
       create_column(
@@ -55,7 +86,14 @@ async function createColumn(title: string) {
   return resCreate.data.data.create_column.id
 }
 
-async function updateItem() {
+/**
+ * Updates an item in Monday.com with predefined values.
+ * - Ensures the columns "Solución Express" and "Solución Script" exist.
+ * - Updates multiple column values including links.
+ * @async
+ * @returns {Promise<void>}
+ */
+async function updateItem(): Promise<void> {
   try {
     let colExpressId = await getColumnIdByTitle('Solución Express')
     let colScriptId = await getColumnIdByTitle('Solución Script')
@@ -67,7 +105,7 @@ async function updateItem() {
       colScriptId = await createColumn('Solución Script')
     }
 
-    const columnValues: any = {
+    const columnValues: Record<string, any> = {
       name: 'Ramon Garcia',
       numeric_mktb8zbj: 25,
       date4: { date: '2025-08-03' },
@@ -109,8 +147,9 @@ async function updateItem() {
       }
     )
 
+    console.log('✅ Item updated:', resUpdate.data)
   } catch (error: any) {
-    console.error('Error:', error.response?.data || error.message)
+    console.error('❌ Error:', error.response?.data || error.message)
   }
 }
 

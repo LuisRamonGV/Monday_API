@@ -4,15 +4,44 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
+/**
+ * Express application instance
+ * @constant {Express.Application}
+ */
 const app = express()
 app.use(express.json())
 
+/**
+ * Base URL for Monday.com API
+ * @constant {string}
+ */
 const MONDAY_API_URL = 'https://api.monday.com/v2'
+
+/**
+ * Monday.com API Key from environment variables
+ * @constant {string}
+ */
 const MONDAY_API_KEY = process.env.MONDAY_API_KEY as string
+
+/**
+ * Board ID where updates will be applied
+ * @constant {number}
+ */
 const BOARD_ID = Number(process.env.BOARD_ID)
+
+/**
+ * Item ID that will be updated
+ * @constant {number}
+ */
 const ITEM_ID = Number(process.env.ITEM_ID)
 
-async function getColumnIdByTitle(title: string) {
+/**
+ * Retrieves the column ID from a Monday.com board by its title.
+ * @async
+ * @param {string} title - The title of the column to search for.
+ * @returns {Promise<string|null>} The column ID if found, otherwise `null`.
+ */
+async function getColumnIdByTitle(title: string): Promise<string | null> {
   const queryColumns = `
     query {
       boards(ids: ${BOARD_ID}) {
@@ -36,7 +65,13 @@ async function getColumnIdByTitle(title: string) {
   return found?.id || null
 }
 
-async function createColumn(title: string) {
+/**
+ * Creates a new column in the Monday.com board.
+ * @async
+ * @param {string} title - The title of the column to create.
+ * @returns {Promise<string>} The ID of the newly created column.
+ */
+async function createColumn(title: string): Promise<string> {
   const mutationCreateColumn = `
     mutation {
       create_column(
@@ -59,9 +94,18 @@ async function createColumn(title: string) {
   return resCreate.data.data.create_column.id
 }
 
+/**
+ * Webhook endpoint to update an item in Monday.com.
+ * - Ensures the columns "Solución Express" and "Solución Script" exist.
+ * - Updates multiple column values including GitHub links.
+ * @name POST /webhook
+ * @function
+ * @param {Request} req - Express request object.
+ * @param {Response} res - Express response object.
+ * @returns {Promise<void>} JSON response with update status.
+ */
 app.post('/webhook', async (req: Request, res: Response) => {
   try {
-
     let colExpressId = await getColumnIdByTitle('Solución Express')
     let colScriptId = await getColumnIdByTitle('Solución Script')
 
@@ -79,11 +123,11 @@ app.post('/webhook', async (req: Request, res: Response) => {
       email: 'luis.ramon.garcia.v@gmail.com',
       phone: '4686892142',
       githubRepo: 'https://github.com/LuisRamonGV',
-      githubExpress: 'https://github.com/LuisRamonGV/solucion-express',
-      githubScript: 'https://github.com/LuisRamonGV/solucion-script'
+      githubExpress: 'https://github.com/LuisRamonGV/Monday_API',
+      githubScript: 'https://github.com/LuisRamonGV/Monday_API'
     }
 
-    const columnValues: any = {
+    const columnValues: Record<string, any> = {
       name: updatedData.name,
       numeric_mktb8zbj: updatedData.age,
       date4: { date: updatedData.date },
@@ -125,14 +169,17 @@ app.post('/webhook', async (req: Request, res: Response) => {
       }
     )
 
-
-    res.json({ message: 'Item actualizado correctamente con links', data: updatedData })
+    res.json({ message: '✅ Item updated successfully with links', data: updatedData })
   } catch (error: any) {
-    console.error('Error:', error.response?.data || error.message)
+    console.error('❌ Error:', error.response?.data || error.message)
     res.status(500).json({ error: error.response?.data || error.message })
   }
 })
 
+/**
+ * Starts the Express server.
+ * @event listen
+ */
 app.listen(3000, () => {
-  console.log('Server running on port 3000')
+  console.log('🚀 Server running on port 3000')
 })
