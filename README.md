@@ -38,16 +38,17 @@ This project contains two ways to update data on a Monday.com board:
     BOARD_ID=YOUR_BOARD_ID
     ITEM_ID=YOUR_ITEM_ID
 
-## ⚙️ **Run the project**
+## ⚡ **Run the project**
 1. Express
     ```bash
     npm run start
+
+- Request example with Express
+   ```bash
+   curl -X POST http://localhost:3000/webhook
 2. Standalone
     ```bash
     npm run start:script
 
- - Request example with Express
-    ```bash
-    curl -X POST http://localhost:3000/webhook
 
 
