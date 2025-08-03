@@ -4,13 +4,13 @@ This project contains two ways to update data on a Monday.com board:
 
 1. **Express Version**  
    - Runs a server exposing a `/webhook` endpoint.  
-   - When receiving a POST request, it updates specified columns on Monday.com.  
-   - Creates additional columns (*Solución Express* and *Solución Script*) if they don't exist, and sets their values.
+   - When receiving a POST request, it updates specified column on Monday.com.  
+   - Creates additional column (*Solución*) if they don't exist, and sets their values.
 
 2. **Standalone Script Version**  
-   - Runs a script (`updateMonday.ts` or `updateMonday.js`) that updates data directly on the board.  
+   - Runs a script that updates data directly on the board.  
    - No server required.  
-   - Also creates columns if missing and updates them with links.
+   - Also creates column if missing and updates them with links.
 
 ---
 
