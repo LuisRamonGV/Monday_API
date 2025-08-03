@@ -1,12 +1,12 @@
-import axios from 'axios';
-import dotenv from 'dotenv';
+import axios from 'axios'
+import dotenv from 'dotenv'
 
-dotenv.config();
+dotenv.config()
 
-const MONDAY_API_URL = 'https://api.monday.com/v2';
-const MONDAY_API_KEY = process.env.MONDAY_API_KEY as string;
-const BOARD_ID = Number(process.env.BOARD_ID);
-const ITEM_ID = Number(process.env.ITEM_ID);
+const MONDAY_API_URL = 'https://api.monday.com/v2'
+const MONDAY_API_KEY = process.env.MONDAY_API_KEY as string
+const BOARD_ID = Number(process.env.BOARD_ID)
+const ITEM_ID = Number(process.env.ITEM_ID)
 
 async function getColumnIdByTitle(title: string) {
   const queryColumns = `
@@ -18,18 +18,18 @@ async function getColumnIdByTitle(title: string) {
         }
       }
     }
-  `;
+  `
 
   const resColumns = await axios.post(
     MONDAY_API_URL,
     { query: queryColumns },
     { headers: { Authorization: `Bearer ${MONDAY_API_KEY}` } }
-  );
+  )
 
-  const columns = resColumns.data.data.boards[0].columns;
-  const found = columns.find((col: any) => col.title === title);
+  const columns = resColumns.data.data.boards[0].columns
+  const found = columns.find((col: any) => col.title === title)
 
-  return found?.id || null;
+  return found?.id || null
 }
 
 async function createColumn(title: string) {
@@ -44,54 +44,47 @@ async function createColumn(title: string) {
         title
       }
     }
-  `;
+  `
 
   const resCreate = await axios.post(
     MONDAY_API_URL,
     { query: mutationCreateColumn },
     { headers: { Authorization: `Bearer ${MONDAY_API_KEY}` } }
-  );
+  )
 
-  return resCreate.data.data.create_column.id;
+  return resCreate.data.data.create_column.id
 }
 
 async function updateItem() {
   try {
-    // 🔍 Verificar columnas
-    let colExpressId = await getColumnIdByTitle("Solución Express");
-    let colScriptId = await getColumnIdByTitle("Solución Script");
+    let colExpressId = await getColumnIdByTitle('Solución Express')
+    let colScriptId = await getColumnIdByTitle('Solución Script')
 
-    // 🆕 Crear si no existen
     if (!colExpressId) {
-      colExpressId = await createColumn("Solución Express");
-      console.log(`🆕 Columna "Solución Express" creada: ${colExpressId}`);
+      colExpressId = await createColumn('Solución Express')
     }
     if (!colScriptId) {
-      colScriptId = await createColumn("Solución Script");
-      console.log(`🆕 Columna "Solución Script" creada: ${colScriptId}`);
+      colScriptId = await createColumn('Solución Script')
     }
 
-    // 📌 Valores a actualizar
     const columnValues: any = {
-      name: "Ramon Garcia",
+      name: 'Ramon Garcia',
       numeric_mktb8zbj: 25,
-      date4: { date: "2025-08-03" },
-      email_mktb8jqh: { email: "luis.ramon.garcia.v@gmail.com", text: "luis.ramon.garcia.v@gmail.com" },
-      phone_mktbpkth: { phone: "4686892142" },
-      link_mktbykh5: { url: "https://github.com/LuisRamonGV", text: "GitHub Repo" }
-    };
+      date4: { date: '2025-08-03' },
+      email_mktb8jqh: { email: 'luis.ramon.garcia.v@gmail.com', text: 'luis.ramon.garcia.v@gmail.com' },
+      phone_mktbpkth: { phone: '4686892142' },
+      link_mktbykh5: { url: 'https://github.com/LuisRamonGV', text: 'GitHub Repo' }
+    }
 
-    // 👌 Agregar links nuevos
     columnValues[colExpressId] = {
-      url: "https://github.com/LuisRamonGV/solucion-express",
-      text: "Solución Express"
-    };
+      url: 'https://github.com/LuisRamonGV/solucion-express',
+      text: 'Solución Express'
+    }
     columnValues[colScriptId] = {
-      url: "https://github.com/LuisRamonGV/solucion-script",
-      text: "Solución Script"
-    };
+      url: 'https://github.com/LuisRamonGV/solucion-script',
+      text: 'Solución Script'
+    }
 
-    // 🔄 Mutación para actualizar todo
     const mutationUpdate = `
       mutation {
         change_multiple_column_values(
@@ -103,7 +96,7 @@ async function updateItem() {
           name
         }
       }
-    `;
+    `
 
     const resUpdate = await axios.post(
       MONDAY_API_URL,
@@ -114,12 +107,11 @@ async function updateItem() {
           'Content-Type': 'application/json'
         }
       }
-    );
+    )
 
-    console.log("✅ Respuesta Monday:", resUpdate.data);
   } catch (error: any) {
-    console.error("❌ Error:", error.response?.data || error.message);
+    console.error('Error:', error.response?.data || error.message)
   }
 }
 
-updateItem();
+updateItem()
