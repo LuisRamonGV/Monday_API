@@ -88,21 +88,16 @@ async function createColumn(title: string): Promise<string> {
 
 /**
  * Updates an item in Monday.com with predefined values.
- * - Ensures the columns "Solución Express" and "Solución Script" exist.
- * - Updates multiple column values including links.
+ * - Ensures the column "Solución" exists.
+ * - Updates multiple column values including the GitHub link.
  * @async
  * @returns {Promise<void>}
  */
 async function updateItem(): Promise<void> {
   try {
-    let colExpressId = await getColumnIdByTitle('Solución Express')
-    let colScriptId = await getColumnIdByTitle('Solución Script')
-
-    if (!colExpressId) {
-      colExpressId = await createColumn('Solución Express')
-    }
-    if (!colScriptId) {
-      colScriptId = await createColumn('Solución Script')
+    let columnId = await getColumnIdByTitle('Solución')
+    if (!columnId) {
+      columnId = await createColumn('Solución')
     }
 
     const columnValues: Record<string, any> = {
@@ -114,13 +109,9 @@ async function updateItem(): Promise<void> {
       link_mktbykh5: { url: 'https://github.com/LuisRamonGV', text: 'GitHub Repo' }
     }
 
-    columnValues[colExpressId] = {
-      url: 'https://github.com/LuisRamonGV/solucion-express',
-      text: 'Solución Express'
-    }
-    columnValues[colScriptId] = {
-      url: 'https://github.com/LuisRamonGV/solucion-script',
-      text: 'Solución Script'
+    columnValues[columnId] = {
+      url: 'https://github.com/LuisRamonGV/Monday_API',
+      text: 'Solución'
     }
 
     const mutationUpdate = `
@@ -147,9 +138,9 @@ async function updateItem(): Promise<void> {
       }
     )
 
-    console.log('✅ Item updated:', resUpdate.data)
+    console.log('Item updated successfully:', resUpdate.data)
   } catch (error: any) {
-    console.error('❌ Error:', error.response?.data || error.message)
+    console.error('Error:', error.response?.data || error.message)
   }
 }
 

@@ -96,8 +96,8 @@ async function createColumn(title: string): Promise<string> {
 
 /**
  * Webhook endpoint to update an item in Monday.com.
- * - Ensures the columns "Solución Express" and "Solución Script" exist.
- * - Updates multiple column values including GitHub links.
+ * - Ensures the column "Solución" exists.
+ * - Updates multiple column values including GitHub link.
  * @name POST /webhook
  * @function
  * @param {Request} req - Express request object.
@@ -106,14 +106,10 @@ async function createColumn(title: string): Promise<string> {
  */
 app.post('/webhook', async (req: Request, res: Response) => {
   try {
-    let colExpressId = await getColumnIdByTitle('Solución Express')
-    let colScriptId = await getColumnIdByTitle('Solución Script')
+    let columnId = await getColumnIdByTitle('Solución')
 
-    if (!colExpressId) {
-      colExpressId = await createColumn('Solución Express')
-    }
-    if (!colScriptId) {
-      colScriptId = await createColumn('Solución Script')
+    if (!columnId) {
+      columnId = await createColumn('Solución')
     }
 
     const updatedData = {
@@ -123,8 +119,7 @@ app.post('/webhook', async (req: Request, res: Response) => {
       email: 'luis.ramon.garcia.v@gmail.com',
       phone: '4686892142',
       githubRepo: 'https://github.com/LuisRamonGV',
-      githubExpress: 'https://github.com/LuisRamonGV/Monday_API',
-      githubScript: 'https://github.com/LuisRamonGV/Monday_API'
+      githubSolution: 'https://github.com/LuisRamonGV/Monday_API'
     }
 
     const columnValues: Record<string, any> = {
@@ -136,13 +131,9 @@ app.post('/webhook', async (req: Request, res: Response) => {
       link_mktbykh5: { url: updatedData.githubRepo, text: 'GitHub Repo' }
     }
 
-    columnValues[colExpressId] = {
-      url: updatedData.githubExpress,
-      text: 'Solución Express'
-    }
-    columnValues[colScriptId] = {
-      url: updatedData.githubScript,
-      text: 'Solución Script'
+    columnValues[columnId] = {
+      url: updatedData.githubSolution,
+      text: 'Solución'
     }
 
     const mutationUpdate = `
@@ -158,7 +149,7 @@ app.post('/webhook', async (req: Request, res: Response) => {
       }
     `
 
-    const response = await axios.post(
+    await axios.post(
       MONDAY_API_URL,
       { query: mutationUpdate },
       {
@@ -169,9 +160,9 @@ app.post('/webhook', async (req: Request, res: Response) => {
       }
     )
 
-    res.json({ message: '✅ Item updated successfully with links', data: updatedData })
+    res.json({ message: 'Item updated successfully', data: updatedData })
   } catch (error: any) {
-    console.error('❌ Error:', error.response?.data || error.message)
+    console.error('Error:', error.response?.data || error.message)
     res.status(500).json({ error: error.response?.data || error.message })
   }
 })
@@ -181,5 +172,5 @@ app.post('/webhook', async (req: Request, res: Response) => {
  * @event listen
  */
 app.listen(3000, () => {
-  console.log('🚀 Server running on port 3000')
+  console.log('Server running on port 3000')
 })
